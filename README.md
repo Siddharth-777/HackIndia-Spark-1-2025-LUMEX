@@ -48,3 +48,5 @@ Aris is an AI-powered research companion that simplifies the journey from comple
 ## ⚠️ Important Note
 
 To run the Aris website, you need an LLM model. Please run `instruction.py` locally first to set up the required LLM model before launching the website.
+
+**Current Configuration:** Temporarily running on Mistral LLM.
