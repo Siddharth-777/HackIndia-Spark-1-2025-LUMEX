@@ -44,3 +44,7 @@ Aris is an AI-powered research companion that simplifies the journey from comple
 - Researchers needing quick insights and reliable citations
 - Educators aiming to convert papers into lecture content
 - Lifelong learners exploring new fields
+
+## ⚠️ Important Note
+
+To run the Aris website, you need an LLM model. Please run `instruction.py` locally first to set up the required LLM model before launching the website.
