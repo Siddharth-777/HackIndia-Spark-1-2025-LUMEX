@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Paper Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+        }
+        .section-header {
+            padding: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: bold;
+        }
+        .section-content {
+            padding: 1.5rem;
+        }
+        .key-points { border-left: 5px solid #dc3545; }
+        .methodology { border-left: 5px solid #28a745; }
+        .findings { border-left: 5px solid #ffc107; }
+        .conclusions { border-left: 5px solid #6f42c1; }
+        .point-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .point-list li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .point-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #666;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+        @media (max-width: 768px) {
+            .section-card {
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1 class="display-4">{{ title }}</h1>
+            <p class="lead">Research Paper Analysis</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row">
+            <!-- Video Section -->
+            <div class="col-lg-8 mb-4">
+                <div class="section-card">
+                    <div class="section-header">
+                        Visual Summary
+                    </div>
+                    <div class="section-content">
+                        <div class="video-container">
+                            <video controls autoplay>
+                                <source src="{{ video_url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Sections -->
+            <div class="col-lg-4">
+                <div class="section-card key-points">
+                    <div class="section-header">
+                        Key Points
+                    </div>
+                    <div class="section-content">
+                        <ul class="point-list">
+                            {% for point in structured_summary.key_points %}
+                            <li>{{ point }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section-card methodology">
+                    <div class="section-header">
+                        Methodology
+                    </div>
+                    <div class="section-content">
+                        <ul class="point-list">
+                            {% for point in structured_summary.methodology %}
+                            <li>{{ point }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section-card findings">
+                    <div class="section-header">
+                        Findings
+                    </div>
+                    <div class="section-content">
+                        <ul class="point-list">
+                            {% for point in structured_summary.findings %}
+                            <li>{{ point }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section-card conclusions">
+                    <div class="section-header">
+                        Conclusions
+                    </div>
+                    <div class="section-content">
+                        <ul class="point-list">
+                            {% for point in structured_summary.conclusions %}
+                            <li>{{ point }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Summary Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="section-card">
+                    <div class="section-header">
+                        Complete Summary
+                    </div>
+                    <div class="section-content">
+                        <p>{{ summary | nl2br }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

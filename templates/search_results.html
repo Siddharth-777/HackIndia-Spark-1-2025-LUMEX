@@ -1,0 +1,182 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .search-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-spinner {
+            width: 100px;
+            height: 100px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .btn-generate {
+            background: linear-gradient(45deg, #2193b0, #6dd5ed);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-center text-white">
+            <div class="loading-spinner mb-3"></div>
+            <h4>Generating Video Summary...</h4>
+            <p>This may take a few moments</p>
+        </div>
+    </div>
+
+    <div class="search-header">
+        <div class="container">
+            <h1>Search Results</h1>
+            <p class="lead">Found {{ total_hits }} results for "{{ query }}"</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        {% for result in results %}
+        <div class="result-card p-4">
+            <div class="row">
+                <div class="col-md-9">
+                    <h3>{{ result.title }}</h3>
+                    {% if result.authors %}
+                    <p class="text-muted">
+                        By {{ result.authors|join(', ') }}
+                        {% if result.year %} ({{ result.year }}) {% endif %}
+                    </p>
+                    {% endif %}
+                    {% if result.abstract %}
+                    <p class="mt-3">{{ result.abstract[:300] }}{% if result.abstract|length > 300 %}...{% endif %}</p>
+                    {% endif %}
+                    <div class="mt-3">
+                        {% if result.doi %}
+                        <a href="https://doi.org/{{ result.doi }}" class="btn btn-outline-primary btn-sm me-2" target="_blank">
+                            View DOI
+                        </a>
+                        {% endif %}
+                        {% if result.pdf_url %}
+                        <a href="{{ result.pdf_url }}" class="btn btn-outline-success btn-sm me-2" target="_blank">
+                            Download PDF
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-center justify-content-end">
+                    <button class="btn btn-generate btn-lg" 
+                            onclick="generateVideo('{{ result.title|tojson|safe }}', '{{ result.abstract|tojson|safe }}')">
+                        <i class="bi bi-play-circle-fill me-2"></i>
+                        Generate Video
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Pagination -->
+        {% if total_hits > page_size %}
+        <nav aria-label="Search results pages" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% set total_pages = (total_hits / page_size)|round(0, 'ceil')|int %}
+                {% for p in range(1, total_pages + 1) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('search_papers', q=query, page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+
+    <script>
+        function generateVideo(title, abstract) {
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            fetch('/summarize-paper', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    abstract: abstract
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                // Replace the entire page content with the analysis view
+                document.documentElement.innerHTML = html;
+                // Update the URL without reloading the page
+                window.history.pushState({}, '', '/analysis');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loadingOverlay').style.display = 'none';
+                alert('Error generating video summary. Please try again.');
+            });
+        }
+
+        // Handle browser back button
+        window.onpopstate = function(event) {
+            location.reload();
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+</body>
+</html>
+{% endblock %}
